@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+ <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Check Biscuits Model</h2>
+
+        <button type="button" onclick="init()">START</button>
+    </div>
+    <div id="webcam-container"></div>
+    <div id="label-container"></div><br>
+    <button id="stoppre">STOP</button>
+
+    <h4 id="para"></h4>
+    <div id="hereall">
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+        // More API functions here:
+        // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+        // the link to your model provided by Teachable Machine export panel
+        const URL = "https://teachablemachine.withgoogle.com/models/D4vs8lHEe/";
+
+        let model, webcam, labelContainer, maxPredictions;
+        let hereall = document.getElementById("hereall");
+
+        // Load the image model and setup the webcam
+        async function init() {
+            hereall.style.display = "block";
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            // load the model and metadata
+            // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+            // or files from your local hard drive
+            // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+
+            // Convenience function to setup a webcam
+            const flip = true; // whether to flip the webcam
+            webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+            await webcam.setup(); // request access to the webcam
+            await webcam.play();
+            window.requestAnimationFrame(loop);
+
+            // append elements to the DOM
+            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            labelContainer = document.getElementById("label-container");
+            for (let i = 0; i < maxPredictions; i++) { // and class labels
+                const labelElement = document.createElement("div");
+                labelElement.classList.add("label");
+                labelContainer.appendChild(labelElement);
+            }
+        }
+
+        async function loop() {
+            webcam.update(); // update the webcam frame
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+        
+
+        let parleginfo = `Parle-G is a popular biscuit brand that originated in India. Here are some details about Parle-G biscuits:
+
+History: Parle-G is manufactured by Parle Products, a renowned Indian food and beverage company. Parle-G was first introduced in 1939, making it one of the oldest biscuit brands in India. Over the years, Parle-G has become an iconic and widely recognized biscuit brand in the country.
+
+Ingredients: Parle-G biscuits are made using simple ingredients, including wheat flour, sugar, vegetable oil, invert syrup, skimmed milk powder, salt, emulsifiers, and leavening agents. These basic ingredients contribute to the unique taste and texture of Parle-G biscuits.
+
+Taste and Texture: Parle-G biscuits have a distinctive flavor that is mildly sweet and biscuity. They have a crispy texture, making them suitable for dunking in tea or milk. Parle-G biscuits are known for their melt-in-the-mouth experience and are enjoyed by people of all ages.
+
+Popularity: Parle-G biscuits have gained immense popularity in India and have become a household name. They are widely consumed as a snack and are often included in school lunches, tea-time snacks, and as a staple in many Indian households. Parle-G is also exported to various countries, making it available to a broader consumer base globally.
+
+Nutritional Value: Parle-G biscuits are a source of energy and provide carbohydrates, fats, and sugars. They also contain a small amount of protein, fiber, and essential minerals. Parle-G biscuits are considered an affordable and convenient snack option.
+
+Branding and Packaging: Parle-G biscuits are recognizable by their distinct yellow packaging. The packaging features the Parle-G logo and the image of a young girl on the front. The brand has built a strong association with its tagline, "G for Genius," emphasizing the biscuit's appeal to young minds and its suitability as a snack for all.
+
+Social Impact: Parle-G biscuits hold cultural significance in India, being considered a nostalgic and affordable snack option. Parle-G has been a part of numerous social initiatives and campaigns, including educational programs for underprivileged children. The brand has actively contributed to social causes, aligning with its association as a popular choice among the masses.
+
+Parle-G biscuits have established themselves as an iconic brand in India, known for their affordability, taste, and widespread availability. They continue to be a favored choice for many consumers as a snack or accompaniment to beverages like tea and milk.`;
+
+        let PatanjaliInfo = `Patanjali biscuits are a product line of biscuits offered by Patanjali Ayurved Limited, an Indian consumer goods company founded by Baba Ramdev and Acharya Balkrishna. Here is some detailed information about Patanjali biscuits:
+
+Brand and Company: Patanjali Ayurved Limited is a leading Indian brand that focuses on manufacturing and selling a wide range of natural and Ayurvedic products, including biscuits. The company emphasizes using natural and herbal ingredients in its products.
+
+Product Range: Patanjali offers a diverse range of biscuits to cater to different consumer preferences and dietary requirements. Some popular variants include:
+
+Patanjali Marie Biscuits: Marie biscuits are a type of sweet tea biscuit, and Patanjali offers its own version made from wheat flour, sugar, and vegetable oil.
+
+Patanjali Digestive Biscuits: These biscuits are known for their digestive properties and are made using ingredients like wheat flour, sugar, edible vegetable oil, and a blend of Ayurvedic herbs and spices.
+
+Patanjali Milk Biscuits: These biscuits are made with the goodness of milk, wheat flour, sugar, and vegetable oil, providing a nutritious snacking option.
+
+Patanjali Nice Biscuits: Nice biscuits are popularly enjoyed with tea, and Patanjali's version is made using wheat flour, sugar, edible vegetable oil, and natural flavorings.
+
+Patanjali Coconut Biscuits: These biscuits feature a coconut flavor and are made with wheat flour, sugar, edible vegetable oil, and desiccated coconut.
+
+These are just a few examples of the biscuit variants offered by Patanjali, and the brand continues to expand its product range.
+
+Ingredients and Manufacturing: Patanjali biscuits are known for their use of natural and wholesome ingredients. The brand emphasizes avoiding artificial flavors, colors, and preservatives. The specific ingredients and manufacturing processes may vary depending on the biscuit variant.
+
+Health and Ayurvedic Influence: Patanjali positions itself as a brand that promotes the principles of Ayurveda and natural health. Some biscuit variants may incorporate Ayurvedic herbs and spices known for their potential health benefits.
+
+Availability: Patanjali biscuits are primarily available in India through various distribution channels. They are sold through Patanjali Ayurved's extensive network of retail stores, as well as through online platforms and authorized resellers.
+
+Packaging and Branding: Patanjali biscuits are packaged in distinct packaging featuring the Patanjali logo, which includes the image of a meditating figure. The packaging typically includes relevant information about the product, ingredients, and nutritional details.
+
+As with any food product, it is advisable to review the specific packaging and consult the product label for accurate and up-to-date information regarding ingredients, nutritional content, and any specific instructions or precautions.
+`
+
+let info2020 = `20-20 biscuits are a popular biscuit brand in India that is known for its unique taste and crispy texture. Here is some detailed information about 20-20 biscuits:
+
+Brand: 20-20 biscuits are manufactured by Britannia Industries Limited, one of India's leading food companies. Britannia has a long-standing reputation for producing a wide range of food products, including biscuits.
+
+Product Range: 20-20 biscuits are available in various flavors and variations to cater to different consumer preferences. Some popular variants include:
+
+20-20 Butter Cookies: These biscuits have a rich buttery flavor and a melt-in-your-mouth texture.
+
+20-20 Cashew Cookies: These biscuits contain pieces of cashew nuts, adding a crunchy and nutty taste to the cookies.
+
+20-20 Fruit Biscuits: These biscuits are packed with the goodness of dried fruits, such as raisins, giving them a fruity and slightly chewy texture.
+
+20-20 Maska Chaska: This variant combines a savory and tangy flavor, reminiscent of popular Indian street snacks.
+
+20-20 Classic Cream Biscuits: These biscuits consist of two crunchy biscuits sandwiched together with a layer of creamy filling.
+
+Britannia periodically introduces new flavors and variants to expand the 20-20 biscuit range.
+
+Ingredients: The specific ingredients used in 20-20 biscuits may vary depending on the flavor and variant. Generally, the biscuits contain wheat flour, sugar, vegetable oil, leavening agents, flavors, and other ingredients specific to each variant.
+
+Taste and Texture: 20-20 biscuits are known for their unique taste and crispy texture. The flavor profile varies based on the specific variant, ranging from buttery and nutty to sweet and tangy. The biscuits are often enjoyed as a snack or paired with tea or coffee.
+
+Packaging: 20-20 biscuits are typically packaged in colorful and eye-catching wrappers that prominently display the brand name and the specific variant. The packaging provides information about the product, nutritional details, and manufacturing details.
+
+Availability: 20-20 biscuits are widely available across India through various distribution channels, including retail stores, supermarkets, and online platforms. Britannia has an extensive distribution network that ensures the availability of its products in both urban and rural areas.
+
+Nutritional Information: The nutritional content of 20-20 biscuits varies depending on the specific variant. The packaging typically includes information about the serving size, calories, carbohydrates, fats, sugars, and other nutritional components.
+
+As with any food product, it is advisable to review the specific packaging and consult the product label for accurate and up-to-date information regarding ingredients, nutritional content, and any specific instructions or precautions.`
+
+
+let happyinfo = `Happy Happy is a brand of biscuit manufactured by Parle Products in India. It was launched in 1994 and is one of the most popular biscuit brands in India.
+
+Happy Happy biscuits are made with a blend of wheat flour, sugar, and choco chips. They are available in two flavors: Choco Chip and Vanilla Cream. The Choco Chip biscuits are made with milk chocolate chips, while the Vanilla Cream biscuits are made with vanilla cream filling.
+
+Happy Happy biscuits are a popular snack among children and adults alike. They are also a popular choice for parties and other gatherings.
+
+Here are some of the key features of Happy Happy biscuits:
+
+They are made with a blend of wheat flour, sugar, and choco chips.
+They are available in two flavors: Choco Chip and Vanilla Cream.
+They are a popular snack among children and adults alike.
+They are a popular choice for parties and other gatherings.
+Here are some of the nutritional information for Happy Happy biscuits:
+
+Energy: 120 calories per 100 grams
+Fat: 5 grams per 100 grams
+Carbohydrates: 20 grams per 100 grams
+Protein: 2 grams per 100 grams
+Happy Happy biscuits are a good source of energy and carbohydrates. They are also a good source of dietary fiber. However, they are high in sugar and fat, so they should be consumed in moderation.
+
+The price of Happy Happy biscuits varies depending on the size and flavor. A 60-gram pack of Happy Happy Choco Chip biscuits costs around Rs. 5 in India. A 12-pack of 60-gram packs of Happy Happy Choco Chip biscuits costs around Rs. 120.
+
+Happy Happy biscuits are available in most grocery stores and supermarkets in India. They are also available online through various retailers.`
+
+
+let monacoInfo = `Monaco biscuits are a popular savory biscuit brand that is enjoyed as a snack in many parts of the world. Here is some detailed information about Monaco biscuits:
+
+Brand: Monaco biscuits are produced by Parle Products, an Indian food and beverage company known for its wide range of snacks and biscuits.
+
+Taste and Texture: Monaco biscuits have a unique taste that is savory and slightly salty. They are known for their crisp texture, which makes them suitable for snacking or for use as a base for toppings or spreads.
+
+Shape and Design: Monaco biscuits are rectangular in shape with a perforated texture. The perforations help create a light and crunchy texture and make them easy to break into smaller pieces if desired.
+
+Ingredients: The specific ingredients used in Monaco biscuits may vary slightly depending on the regional variations and specific flavors. Generally, the biscuits are made with wheat flour, vegetable oil, salt, baking powder, and other seasonings for flavor. They do not contain eggs or any animal-derived ingredients, making them suitable for vegetarians.
+
+Flavors and Varieties: Monaco biscuits are available in various flavors and variations to cater to different tastes. Some popular variants include:
+
+Monaco Classic: The original variant with a simple and savory taste.
+
+Monaco Jeera: Infused with the flavor of cumin seeds (jeera), adding a unique and aromatic taste.
+
+Monaco Pizza: These biscuits are flavored with pizza seasonings, providing a pizza-like taste experience.
+
+Monaco Schezwan: These biscuits are spiced with Schezwan sauce, offering a tangy and slightly spicy flavor.
+
+Monaco Sweet Chili: A combination of sweet and spicy flavors that gives a unique taste.
+
+These are just a few examples, and the availability of specific variants may vary depending on the region and market.
+
+Packaging: Monaco biscuits are typically packaged in brightly colored wrappers that display the brand name and the specific variant. The packaging provides information about the product, ingredients, nutritional details, and manufacturing details.
+
+Serving Suggestions: Monaco biscuits are commonly enjoyed as a standalone snack. They can be eaten on their own, paired with a hot cup of tea or coffee, or used as a base for toppings like cheese, spreads, or dips. They are also used as a popular ingredient in various snack recipes and chaat (Indian street food) preparations.
+
+Monaco biscuits have gained popularity for their distinct taste, crispy texture, and versatility in usage. They are widely available in India and in many international markets, both in physical stores and through online platforms.`
+
+
+let krackInfo = `KrackJack biscuits are a popular brand of sweet and salty biscuits manufactured by Parle Products, an Indian food and beverage company. Here is some detailed information about KrackJack biscuits:
+
+Taste and Texture: KrackJack biscuits have a unique combination of sweet and salty flavors, making them a versatile snack. They have a crispy and crunchy texture that offers a satisfying bite.
+
+Shape and Design: KrackJack biscuits are rectangular in shape with an embossed pattern on the surface, adding to their visual appeal. The embossed design also contributes to the biscuit's texture.
+
+Ingredients: The specific ingredients used in KrackJack biscuits include wheat flour, sugar, vegetable oil, edible salt, milk solids, and leavening agents. The precise formulation may vary slightly depending on regional variations and specific flavors.
+
+Flavors and Varieties: KrackJack biscuits are available in various flavors to cater to different preferences. Some popular variants include:
+
+KrackJack Classic: The original variant with a delightful combination of sweet and salty flavors.
+
+KrackJack Butter: These biscuits have a rich buttery taste that enhances the overall flavor experience.
+
+KrackJack Mango Bite: A seasonal variant that infuses the flavor of mango, providing a fruity twist to the biscuits.
+
+KrackJack Choco Fills: These biscuits are filled with a creamy chocolate center, offering a delightful indulgence.
+
+These are a few examples of the flavors available, and the availability of specific variants may vary depending on the region and market.
+
+Packaging: KrackJack biscuits are typically packaged in attractive and colorful wrappers that prominently display the brand name and the specific variant. The packaging provides information about the product, ingredients, nutritional details, and manufacturing details.
+
+Serving Suggestions: KrackJack biscuits are enjoyed as a standalone snack and can be paired with tea, coffee, or milk. They are also used in various dessert recipes as a base or ingredient, such as in cheesecake crusts, milkshakes, and ice cream sundaes.
+
+Availability: KrackJack biscuits are widely available across India through various distribution channels, including retail stores, supermarkets, and online platforms. Parle Products has an extensive distribution network that ensures the availability of its products in both urban and rural areas.
+
+Nutritional Information: The nutritional content of KrackJack biscuits may vary depending on the specific variant. The packaging typically includes information about the serving size, calories, carbohydrates, fats, sugars, and other nutritional components.
+
+KrackJack biscuits have become a popular choice among consumers in India and are known for their taste, texture, and versatility. As with any food product, it is advisable to review the specific packaging and consult the product label for accurate and up-to-date information regarding ingredients, nutritional content, and any specific instructions or precautions.`
+
+        // run the webcam image through the image model
+        async function predict() {
+            // predict can take in an image, video, or canvas HTML element
+            const prediction = await model.predict(webcam.canvas);
+            for (let i = 0; i < maxPredictions; i++) {
+                const classPrediction =
+                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                const labelElement = labelContainer.childNodes[i];
+                labelElement.innerHTML = classPrediction;
+                if (prediction[i].probability > 0.80) {
+                    labelElement.classList.add("green");
+                    let para = document.getElementById("para");
+                    para.innerHTML = "Buscuit is a " + prediction[i].className;
+
+                    hereall.innerHTML = "";
+                    if (prediction[i].className == "Nothing Showing") {
+                        let img = document.createElement("img");
+                        img.src = "./images/nothing.jpg";
+                        let p = document.createElement("p");
+                        p.innerText = "Nothing Showing";
+                        p.classList.add("parainfo");
+                        hereall.appendChild(img);
+                        hereall.appendChild(p);
+                        break;
+                    } else if (prediction[i].className == "Parle-G") {
+                        let img = document.createElement("img");
+                        img.src = "./images/ParleG.jpg";
+                        let p = document.createElement("p");
+                        p.innerText = parleginfo;
+                        p.classList.add("parainfo");
+                        hereall.appendChild(img);
+                        hereall.appendChild(p);
+                        break;
+                    } else if (prediction[i].className == "20-20") {
+                        let img = document.createElement("img");
+                        img.src = "./images/20 - 20.jpg";
+                        let p = document.createElement("p");
+                        p.innerText = info2020;
+                        p.classList.add("parainfo");
+                        hereall.appendChild(img);
+                        hereall.appendChild(p);
+                        break;
+                    } else if (prediction[i].className == "Happy Happy") {
+                        let img = document.createElement("img");
+                        img.src = "./images/happy.jpg";
+                        let p = document.createElement("p");
+                        p.innerText = happyinfo;
+                        p.classList.add("parainfo");
+                        hereall.appendChild(img);
+                        hereall.appendChild(p);
+                        break;
+                    } else if (prediction[i].className == "Patanjali") {
+                        let img = document.createElement("img");
+                        img.src = "./images/PATANJALI.jpg";
+                        let p = document.createElement("p");
+                        p.innerText = PatanjaliInfo;
+                        p.classList.add("parainfo");
+                        hereall.appendChild(img);
+                        hereall.appendChild(p);
+                        break;
+                    } else if (prediction[i].className == "Monaco") {
+                        let img = document.createElement("img");
+                        img.src = "./images/monaco-biscuit.jpg";
+                        let p = document.createElement("p");
+                        p.innerText = monacoInfo;
+                        p.classList.add("parainfo");
+                        hereall.appendChild(img);
+                        hereall.appendChild(p);
+                        break;
+                    } else if (prediction[i].className == "KrackJack") {
+                        let img = document.createElement("img");
+                        img.src = "./images/krack.jpeg";
+                        let p = document.createElement("p");
+                        p.innerText = krackInfo;
+                        p.classList.add("parainfo");
+                        hereall.appendChild(img);
+                        hereall.appendChild(p);
+                        break;
+                    }
+                } else {
+                    labelElement.classList.remove("green");
+                }
+            }
+
+            // on click stop predicting should be stop for a while
+
+            let stoppre = document.getElementById("stoppre");
+            stoppre.addEventListener("click", () => {
+                webcam.stop();
+            });
+        }
+    </script>
+</body>
+
+</html>
